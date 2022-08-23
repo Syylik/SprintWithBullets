@@ -24,20 +24,19 @@ public class Gun : MonoBehaviour
         if(Input.GetMouseButton(0) && shootTimeLeft <= 0)                                      
         {
             shootTimeLeft = shootTime;
-            Fire();
+            if(canShoot) Fire();
             RaycastHit hit;
-            Physics.Raycast(shootPoint.position, transform.forward * shootRange, out hit, shootRange);
-            Debug.Log(hit.collider.name);
+            Physics.Raycast(shootPoint.position, transform.forward * shootRange, out hit);
             if(hit.collider != null)
             {
                 if(hit.collider.TryGetComponent<Bot>(out Bot bot) || hit.collider.TryGetComponent<FinishBlock>(out FinishBlock finishBlock))
                 {
                     GameManager.SlowMoOn();
-                    canShoot = false;
                 }
             }
         }
     }
+    public static void ChangeShootState(bool state) => canShoot = state;
     private void Fire()
     {
         onFire.Invoke();
@@ -49,6 +48,10 @@ public class Gun : MonoBehaviour
         var force = -transform.forward * knockbackPower;
         rb.AddExplosionForce(rotationPower, shootForcePoint.position, 0.1f, 2, ForceMode.Impulse);
         rb.AddForceAtPosition(force, shootForcePoint.position , ForceMode.Impulse);
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Lose") && GameManager.instance.state == GameManager.GameState.PLAY) GameManager.instance.Lose();
     }
     private void OnDrawGizmosSelected()
     {

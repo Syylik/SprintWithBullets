@@ -17,19 +17,22 @@ public class Bullet : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.collider.TryGetComponent<Bot>(out Bot bot))
+        if (collision.collider.TryGetComponent<Bot>(out Bot bot))
         {
             GameManager.SlowMoOff();
             bot.Die();
             DestroyBullet();
         }
-        else if(collision.collider.TryGetComponent<FinishBlock>(out FinishBlock finishBlock))
+        else if (collision.collider.TryGetComponent<FinishBlock>(out FinishBlock finishBlock))
         {
-            GameManager.SlowMoOff();
-            GameManager.instance.Win(finishBlock.multiplyNum);
-            DestroyBullet();
+            if (GameManager.instance.state == GameManager.GameState.PLAY)
+            {
+                GameManager.SlowMoOff();
+                GameManager.instance.Win(finishBlock.multiplyNum);
+                DestroyBullet();
+            }
         }
-        else if(collision.collider.CompareTag("Box")) DestroyBullet(); //  :(
+        else if (collision.collider.CompareTag("Box")) DestroyBullet(); //  :(
     }
     private void DestroyBullet()
     {
